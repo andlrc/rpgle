@@ -1,10 +1,10 @@
 CFLAGS	= -O -Wall -Werror -Wno-unused-function
-DFLAGS	= -g -Wall -Werror -DDEBUG
+DFLAGS	= -g -Wall -Werror -Wno-unused-function -DDEBUG
 YFLAGS	= -d
 
-OFILES	= rpgle.g.o rpgle.lx.o rpgle.o
+OFILES	= rpgle.o rpgle.g.o rpgle.lx.o
 
-rpgle:	rpgle.h $(OFILES)
+rpgle:	rpgle.h rpgle.g.h $(OFILES)
 	$(CC) $(CFLAGS) -o rpgle $(OFILES) -lfl -ly
 
 rpgle.g.o:	rpgle.h rpgle.g.y
@@ -15,6 +15,9 @@ rpgle.g.h:	y.tab.h
 	cp y.tab.h rpgle.g.h
 
 rpgle.o:	rpgle.c
+
+debug:	clean
+	$(MAKE) CFLAGS="$(DFLAGS)"
 
 clean:
 	-rm rpgle $(OFILES)
