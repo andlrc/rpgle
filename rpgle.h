@@ -1,8 +1,15 @@
 #ifndef _RPGLE_H
 #define _RPGLE_H 1
 
+#ifdef DEBUG
+#define PUTS(x, y) printf(*y != '\0' ? "%s: %s\n" : "%s\n", x, y);
+#else
+#define PUTS(x, y)
+#endif
+
 enum value_type_e {
 	VALUE_TYPE_STR,
+	VALUE_TYPE_INUM,
 	VALUE_TYPE_DNUM
 };
 union value_type_u {
