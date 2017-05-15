@@ -11,213 +11,130 @@ extern int yyerror(const char *);
 
 %define parse.error verbose
 
-%union {
-	char *str;
-	int inum;
-	double dnum;
-	dclc_t *dclc;
-	dclpi_t *dclpi;
-	parameter_t **parameters;
-	parameter_t *parameter;
-	identtype_t *identtype;
-	value_t *value;
-}
+%token STR
 
-%token <str> IDENT INDICATOR IDENTTYPE STR;
-%token <inum> INUM
-%token <dnum> DNUM
+/* H-Spec */
+%token DCL_OPT
 
-%token DCLPR ENDPR
-%token DCLS
-%token DCLDS ENDDS
-%token DCLC CONST
-%token DCLPI ENDPI
-%token DCLPROC EXPORT ENDPROC
+%token DEBUG _YES
+%token DATEDIT _MDY _DMY _YMD _ISO _USA _EUR
+%token OPTION _NOXREF _XREF _NOGEN _GEN _NOSECLVL _SECLVL _NOSHOWCPY _SHOWCPY
+%token _NOEXPDDS _EXPDDS _NOSRCSTMT _SRCSTMT _NODEBUGIO _DEBUGIO
+%token DATFMT /*_MDY*/ /*_DMY*/ /*_YMD*/ /*_ISO*/ /*_USA*/ /*_EUR*/
+%token TIMFMT _HMS /*_ISO*/ /*_USA*/ /*_EUR*/
+%token ACTGRP _NEW _CALLER /*STR*/
 
-%type <dclc> dclc
-%type <dclpi> dclpi
-%type <parameters> parameters
-%type <parameter> parameter
-%type <identtype> identtype
-%type <value> value
+%token AUT _LIBRCRTAUT _ALL _CHANGE _USE _EXCLUDE /*STR*/
+%token BNDDIR /*STR*/
+
+/* D-Spec */
+%token DCL_S DCL_C DCL_PI END_PI
+%token EXTPROC INZ CONST LIKE LIKEDS LIKEREC POS
+%token CHAR VARCHAR UCS VARUCS GRAPH IND PACKED ZONED BINDEC
+%token INT UNS FLOAT DATE TIME TIMESTAMP POINTER OBJECT
+%token DIM VALUE OPTIONS DCL_PARM
+%token _N
+
+/* P-Spec */
+%token DCL_PROC END_PROC DCL_PR END_PR
+%token EXPORT
+
+/* F-Spec */
+%token DCL_F
+%token USAGE DISK PRINTER SEQ SPECIAL WORKSTN KEYED EXTDESC
+%token _EXT _INPUT _OUTPUT
+
+/* C-Spec */
+%token IF ELSEIF ELSE ENDIF
+%token DOW DOU ENDDO
+%token FOR BY TO DOWNTO ENDFOR
+
+%token AND_OP OR_OP LE_OP GE_OP NE_OP
+
+%token ADD_ASSIGN SUB_ASSIGN MUL_ASSIGN DIV_ASSIGN
 
 %%
 
 root
-	: head tail
-	;
+	: hspec /* fspec dspec ispec cspec ospec pspec */
 
-head
+hspec
 	: /* Empty */
-	| dspec head
-	| dclproc head
-	;
+	| DCL_OPT hspec_kws ';' hspec
+	| DCL_OPT ';' hspec
 
-tail
-	: cspec
-	| dclproc
-	;
+hspec_kws
+	: hspec_kw
+	| hspec_kw hspec_kws
 
-dspec
-	: /* Empty */
-     
-	| dclpr dspec
-	| dcls dspec
-	| dclc dspec
-	| dclds dspec
-	| dclpi dspec
-	;
+hspec_kw
+	: DEBUG '(' hspec_debug ')'
+	| DATEDIT '(' hspec_datedit ')'
+	| OPTION '(' hspec_options ')'
+	| DATFMT '(' hspec_datfmt ')'
+	| TIMFMT '(' hspec_timfmt ')'
+	| ACTGRP '(' hspec_actgrp ')'
+	| AUT '(' hspec_aut ')'
+	| BNDDIR '(' hspec_bindirs ')'
 
-cspec
-	: /* Empty */
-	| assignment_expression cspec
-	;
+hspec_debug
+	: _YES
 
-assignment_expression
-	: IDENT assignment_operator '1'
-	;
+hspec_datedit
+	: _MDY
+	| _DMY
+	| _YMD
+	| _ISO
+	| _USA
+	| _EUR
 
-assignment_operator
-	: '='
-	;
+hspec_options
+	: hspec_option
+	| hspec_option hspec_options
 
-dclproc
-	: DCLPROC IDENT EXPORT ';' dclpi dspec cspec ENDPROC ';' {
-		printf("%s - export\n", $2);
-	}
-	| DCLPROC IDENT ';' dclpi dspec cspec ENDPROC ';' {
-		printf("%s\n", $2);
-	}
-	| DCLPROC IDENT EXPORT ';' dspec cspec ENDPROC ';' {
-		printf("%s - export\n", $2);
-	}
-	| DCLPROC IDENT ';' dspec cspec ENDPROC ';' {
-		printf("%s\n", $2);
-	}
+hspec_option
+	: _NOXREF
+	| _XREF
+	| _NOGEN
+	| _GEN
+	| _NOSECLVL
+	| _SECLVL
+	| _NOSHOWCPY
+	| _SHOWCPY
+	| _NOEXPDDS
+	| _EXPDDS
+	| _NOSRCSTMT
+	| _SRCSTMT
+	| _NODEBUGIO
+	| _DEBUGIO
 
-dclpr
-	: DCLPR
-	;
-dcls
-	: DCLS
-	;
-dclds
-	: DCLDS
-	;
+hspec_datfmt
+	: _MDY
+	| _DMY
+	| _YMD
+	| _ISO
+	| _USA
+	| _EUR
 
-dclc
-	: DCLC IDENT value ';' {
-		$$ = malloc(sizeof(dclc_t));
-		$$->name = $2;
-		$$->value_type = $3->type;
-		$$->value = $3->value;
-		/* TODO: Free value */
-	}
-	| DCLC IDENT CONST '(' value ')' ';' {
-		$$ = malloc(sizeof(dclc_t));
-		$$->name = $2;
-		$$->value_type = $5->type;
-		$$->value = $5->value;
-		/* TODO: Free value */
-	}
+hspec_timfmt
+	: _HMS
+	| _ISO
+	| _USA
+	| _EUR
 
-dclpi
-	: DCLPI IDENT identtype ';' parameters ENDPI ';' {
-		$$ = malloc(sizeof(dclpi_t));
-		$$->name = $2;
-		$$->parameters = $5;
-	}
-	| DCLPI INDICATOR identtype ';' parameters ENDPI ';' {
-		$$ = malloc(sizeof(dclpi_t));
-		$$->name = NULL;
-		$$->parameters = $5;
-	}
+hspec_actgrp
+	: _NEW
+	| _CALLER
+	| STR
 
-identtype
-	: IDENTTYPE {
-		$$->type = lookup_identtype($1);
-	}
-	| IDENTTYPE '(' INUM ')' {
-		$$ = malloc(sizeof(identtype_t));
-		$$->type = lookup_identtype($1);
-		free($1);
-		$$->arg1.inum = $3;
-		$$->arg2.inum = 0;
-	}
-	| IDENTTYPE '(' INUM ':' INUM ')' {
-		$$ = malloc(sizeof(identtype_t));
-		$$->type = lookup_identtype($1);
-		free($1);
-		$$->arg1.inum = $3;
-		$$->arg2.inum = $5;
-	}
-	| IDENTTYPE '(' INDICATOR ')' {
-		$$ = malloc(sizeof(identtype_t));
-		$$->type = lookup_identtype($1);
-		free($1);
-		$$->arg1.str = $3;
-		$$->arg2.str = NULL;
-	}
-	| IDENTTYPE '(' INDICATOR ':' IDENT ')' {
-		$$ = malloc(sizeof(identtype_t));
-		$$->type = lookup_identtype($1);
-		free($1);
-		$$->arg1.str = $3;
-		$$->arg2.str = $5;
-	}
+hspec_aut
+	: _LIBRCRTAUT
+	| _ALL
+	| _CHANGE
+	| _USE
+	| _EXCLUDE
+	| STR
 
-parameters
-	: /* Empty */ {
-		$$ = NULL;
-	}
-	| parameter {
-		$$ = malloc(sizeof(parameter_t *) * 2);
-		$$[0] = $1;
-		$$[1] = NULL;
-	}
-	| parameter parameter {
-		$$ = malloc(sizeof(parameter_t *) * 3);
-		$$[0] = $1;
-		$$[1] = $2;
-		$$[2] = NULL;
-	}
-	| parameter parameter parameter {
-		$$ = malloc(sizeof(parameter_t *) * 4);
-		$$[0] = $1;
-		$$[1] = $2;
-		$$[2] = $3;
-		$$[3] = NULL;
-	}
-	| parameter parameter parameter parameter {
-		$$ = malloc(sizeof(parameter_t *) * 5);
-		$$[0] = $1;
-		$$[1] = $2;
-		$$[2] = $3;
-		$$[3] = $4;
-		$$[4] = NULL;
-	}
-
-parameter
-	: IDENT identtype ';' {
-		$$ = malloc(sizeof(parameter_t));
-		$$->name = $1;
-		$$->identtype = $2;
-	}
-
-value
-	: STR {
-		$$ = malloc(sizeof(value_t));
-		$$->type = VALUE_TYPE_STR;
-		$$->value.str = $1;
-	}
-	| INUM {
-		$$ = malloc(sizeof(value_t));
-		$$->type = VALUE_TYPE_INUM;
-		$$->value.dnum = $1;
-	}
-	| DNUM {
-		$$ = malloc(sizeof(value_t));
-		$$->type = VALUE_TYPE_DNUM;
-		$$->value.dnum = $1;
-	}
-%%
+hspec_bindirs
+	: STR
+	| STR ':' hspec_bindirs
