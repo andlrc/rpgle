@@ -13,6 +13,8 @@ extern int yyerror(const char *);
 
 %token _VARCHAR_ _CHAR_ _INT_ _IDENTIFIER_
 
+/* Tokens {{{1 */
+
 /* H-Spec */
 %token DCL_OPT ALLOC ACTGRP ALTSEQ ALWNULL AUT BNDDIR CCSID CCSIDCVT
 %token COPYNEXT COPYRIGHT CURSYM CVTOPT DATEDIT DATFMT DEBUG DECEDIT
@@ -56,11 +58,19 @@ extern int yyerror(const char *);
 %token _INOB _INOC _INOD _INOE _INOF _INOG _INOV _INU1 _INU2 _INU3
 %token _INU4 _INU5 _INU6 _INU7 _INU8 _NOIND _ONLY _OUTPUT _UPDATE
 
+/* D-Spec */
+%token DCL_C DCL_DS END_DS DCL_PI END_PI DCL_PR END_PR DCL_S CONST
+%token LEN EXT EXTNAME INZ PSDS DTAARA LIKEDS LIKEREC
+%token _KEY _AUTO _EXTDFT _LIKEDS
+
+/* 1}}} */
+
 %%
 
 root
-	: hspec fspec /* dspec ispec cspec ospec pspec */
+	: hspec fspec dspec /* ispec cspec ospec pspec */
 
+/* H-Spec {{{1 */
 hspec
 	: /* Empty */
 	| DCL_OPT hspec_kws ';' hspec
@@ -395,7 +405,8 @@ hspec_usrprf
 hspec_validate
 	: _NODATETIME
 
-/* F-Spec */
+/* 1}}}
+ * F-Spec {{{1 */
 
 fspec
 	: /* Empty */
@@ -739,3 +750,77 @@ fspec_usage
 fspec_workstn
 	: _EXT
 	| _INT_
+
+/* 1}}}
+ * D-Spec {{{1 */
+
+dspec
+	: /* Empty */
+	| dspec_c dspec
+	| dspec_ds dspec
+	/*| dspec_pi dspec
+	| dspec_pr dspec
+	| dspec_s dspec*/
+
+dspec_c
+	: DCL_C _IDENTIFIER_ _VARCHAR_ ';'
+	| DCL_C _IDENTIFIER_ _INT_ ';'
+	| DCL_C _IDENTIFIER_ CONST '(' _VARCHAR_ ')' ';'
+	| DCL_C _IDENTIFIER_ CONST '(' _INT_ ')' ';'
+
+dspec_ds
+	: DCL_DS _IDENTIFIER_ dspec_ds_kws ';' dspec_ds_subf END_DS ';'
+	| DCL_DS _IDENTIFIER_ dspec_ds_kws ';' dspec_ds_subf END_DS _IDENTIFIER_ ';'
+	| DCL_DS _IDENTIFIER_ dspec_ds_kws END_DS ';'
+	| DCL_DS _IDENTIFIER_ dspec_ds_kwsx ';'
+
+dspec_ds_kws
+	: /* Empty */
+	| LEN '(' dspec_ds_len ')' dspec_ds_kws
+	| EXT dspec_ds_kws
+	| EXTNAME '(' dspec_ds_extname ')' dspec_ds_kws
+	| INZ dspec_ds_kws
+	| INZ '(' dspec_ds_inz ')' dspec_ds_kws
+	| PSDS dspec_ds_kws
+	| INFDS '(' dspec_ds_infds ')' dspec_ds_kws
+	| DTAARA '(' dspec_ds_dtaara ')' dspec_ds_kws
+
+dspec_ds_len
+	: _INT_
+
+dspec_ds_extname
+	: _IDENTIFIER_
+
+dspec_ds_inz
+	: _EXTDFT
+	| _LIKEDS
+
+dspec_ds_infds
+	: _IDENTIFIER_
+
+dspec_ds_dtaara
+	: _AUTO
+	| _USRCTL
+	| _VARCHAR_
+	| _AUTO ':' dspec_ds_dtaara
+	| _USRCTL ':' dspec_ds_dtaara
+	| _VARCHAR_ ':' dspec_ds_dtaara
+
+dspec_ds_kwsx
+	: dspec_ds_kws LIKEDS '(' dspec_ds_likeds ')' dspec_ds_kws
+	| dspec_ds_kws LIKEREC '(' dspec_ds_likerec ')' dspec_ds_kws
+
+dspec_ds_likeds
+	: _IDENTIFIER_
+
+dspec_ds_likerec
+	: _IDENTIFIER_
+	| _IDENTIFIER_ ':' _ALL
+	| _IDENTIFIER_ ':' _INPUT
+	| _IDENTIFIER_ ':' _OUTPUT
+	| _IDENTIFIER_ ':' _KEY
+
+dspec_ds_subf
+	: /* Empty */
+
+/* 1}}} */

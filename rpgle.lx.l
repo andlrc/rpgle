@@ -8,7 +8,7 @@ static void count();
 
 %}
 
-%x HSPECNS FSPECNS
+%x HSPECNS FSPECNS DSPECNS
 %option caseless
 
 ident		[a-zA-Z_][a-zA-Z0-9_]*
@@ -66,7 +66,7 @@ ws		[\t\r\n ]+
 <HSPECNS>"USRPRF"		{ count(); return USRPRF; }
 <HSPECNS>"VALIDATE"		{ count(); return VALIDATE; }
 
-<HSPECNS>"*ALL"			{ count(); return _ALL; }
+<HSPECNS,DSPECNS>"*ALL"		{ count(); return _ALL; }
 <HSPECNS>"*BASIC"		{ count(); return _BASIC; }
 <HSPECNS>"*BLANK"		{ count(); return _BLANK; }
 <HSPECNS>"*CALLER"		{ count(); return _CALLER; }
@@ -92,7 +92,7 @@ ws		[\t\r\n ]+
 <HSPECNS>"*HMS"			{ count(); return _HMS; }
 <HSPECNS>"*IGNORE"		{ count(); return _IGNORE; }
 <HSPECNS>"*INHERIT"		{ count(); return _INHERIT; }
-<HSPECNS,FSPECNS>"*INPUT"	{ count(); return _INPUT; }
+<HSPECNS,FSPECNS,DSPECNS>"*INPUT"	{ count(); return _INPUT; }
 <HSPECNS>"*INPUTONLY"		{ count(); return _INPUTONLY; }
 <HSPECNS>"*INPUTPACKED"		{ count(); return _INPUTPACKED; }
 <HSPECNS>"*INZOFL"		{ count(); return _INZOFL; }
@@ -147,7 +147,7 @@ ws		[\t\r\n ]+
 <HSPECNS>"*USA"			{ count(); return _USA; }
 <HSPECNS>"*USE"			{ count(); return _USE; }
 <HSPECNS>"*USER"		{ count(); return _USER; }
-<HSPECNS>"*USRCTL"		{ count(); return _USRCTL; }
+<HSPECNS,DSPECNS>"*USRCTL"	{ count(); return _USRCTL; }
 <HSPECNS>"*VARCHAR"		{ count(); return _VARCHAR; }
 <HSPECNS>"*VARGRAPHIC"		{ count(); return _VARGRAPHIC; }
 <HSPECNS>"*XMLSAX"		{ count(); return _XMLSAX; }
@@ -173,7 +173,7 @@ ws		[\t\r\n ]+
 <FSPECNS>"IGNORE"		{ count(); return IGNORE; }
 <FSPECNS>"INCLUDE"		{ count(); return INCLUDE; }
 <FSPECNS>"INDDS"		{ count(); return INDDS; }
-<FSPECNS>"INFDS"		{ count(); return INFDS; }
+<FSPECNS,DSPECNS>"INFDS"	{ count(); return INFDS; }
 <FSPECNS>"INFSR"		{ count(); return INFSR; }
 <FSPECNS>"KEYED"		{ count(); return KEYED; }
 <FSPECNS>"KEYLOC"		{ count(); return KEYLOC; }
@@ -322,8 +322,32 @@ ws		[\t\r\n ]+
 <FSPECNS>"*INU8"		{ count(); return _INU8; }
 <FSPECNS>"*NOIND"		{ count(); return _NOIND; }
 <FSPECNS>"*ONLY"		{ count(); return _ONLY; }
-<FSPECNS>"*OUTPUT"		{ count(); return _OUTPUT; }
+<FSPECNS,DSPECNS>"*OUTPUT"	{ count(); return _OUTPUT; }
 <FSPECNS>"*UPDATE"		{ count(); return _UPDATE; }
+
+
+	/* D-Spec */
+<*>"DCL-C"			{ count(); BEGIN(DSPECNS); return DCL_C; }
+<*>"DCL-DS"			{ count(); BEGIN(DSPECNS); return DCL_DS; }
+<DSPECNS>"END-DS"		{ count(); return END_DS; }
+<*>"DCL-PI"			{ count(); BEGIN(DSPECNS); return DCL_PI; }
+<DSPECNS>"END-PI"		{ count(); return END_PI; }
+<*>"DCL-PR"			{ count(); BEGIN(DSPECNS); return DCL_PR; }
+<DSPECNS>"END-PR"		{ count(); return END_PR; }
+<*>"DCL-S"			{ count(); BEGIN(DSPECNS); return DCL_S; }
+<DSPECNS>"CONST"		{ count(); return CONST; }
+<DSPECNS>"LEN"			{ count(); return LEN; }
+<DSPECNS>"EXT"			{ count(); return EXT; }
+<DSPECNS>"EXTNAME"		{ count(); return EXTNAME; }
+<DSPECNS>"INZ"			{ count(); return INZ; }
+<DSPECNS>"PSDS"			{ count(); return PSDS; }
+<DSPECNS>"DTAARA"		{ count(); return DTAARA; }
+<DSPECNS>"LIKEDS"		{ count(); return LIKEDS; }
+<DSPECNS>"LIKEREC"		{ count(); return LIKEREC; }
+<DSPECNS>"*KEY"			{ count(); return _KEY; }
+<DSPECNS>"*AUTO"		{ count(); return _AUTO; }
+<DSPECNS>"*EXTDFT"		{ count(); return _EXTDFT; }
+<DSPECNS>"*LIKEDS"		{ count(); return _LIKEDS; }
 
 <*>{ident}			{ count(); return _IDENTIFIER_; }
 <*>{varchar}			{ count(); return _VARCHAR_; }
