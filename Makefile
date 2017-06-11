@@ -1,6 +1,7 @@
 CFLAGS	= -O -Wall -Werror -Wno-unused-function
 DFLAGS	= -g -Wall -Werror -Wno-unused-function -DRPGLE_DEBUG
 YFLAGS	= -d
+DYFLAGS	= -d -v
 
 OFILES	= rpgle.o rpgle.g.o rpgle.lx.o
 
@@ -15,7 +16,7 @@ y.tab.h:	rpgle.g.o
 rpgle.o:	rpgle.c
 
 debug:	clean
-	$(MAKE) CFLAGS="$(DFLAGS)"
+	$(MAKE) CFLAGS="$(DFLAGS)" YFLAGS="$(DYFLAGS)"
 
 clean:
-	-rm rpgle $(OFILES) y.tab.h
+	-rm rpgle $(OFILES) y.tab.h y.output

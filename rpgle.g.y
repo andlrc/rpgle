@@ -60,8 +60,9 @@ extern int yyerror(const char *);
 
 /* D-Spec */
 %token DCL_C DCL_DS END_DS DCL_PI END_PI DCL_PR END_PR DCL_S CONST
-%token LEN EXT EXTNAME INZ PSDS DTAARA LIKEDS LIKEREC
-%token _KEY _AUTO _EXTDFT _LIKEDS
+%token ALIGN BASED DTAARA EXPORT EXT EXTNAME IMPORT INZ LEN LIKEDS
+%token LIKEREC NOOPT OCCURS PSDS
+%token _ALLTHREAD _AUTO _EXTDFT _KEY _LIKEDS
 
 /* 1}}} */
 
@@ -776,26 +777,35 @@ dspec_ds
 
 dspec_ds_kws
 	: /* Empty */
-	| LEN '(' dspec_ds_len ')' dspec_ds_kws
-	| EXT dspec_ds_kws
-	| EXTNAME '(' dspec_ds_extname ')' dspec_ds_kws
-	| INZ dspec_ds_kws
-	| INZ '(' dspec_ds_inz ')' dspec_ds_kws
-	| PSDS dspec_ds_kws
-	| INFDS '(' dspec_ds_infds ')' dspec_ds_kws
-	| DTAARA '(' dspec_ds_dtaara ')' dspec_ds_kws
+	| ALIAS
+	| ALIGN
+	| ALTSEQ
+	| ALTSEQ '(' dspec_ds_altseq ')'
+	| BASED '(' dspec_ds_based ')'
+	| DTAARA '(' dspec_ds_dtaara ')'
+	| EXPORT
+	| EXPORT '(' dspec_ds_export ')'
+	| EXT
+	| EXTNAME '(' dspec_ds_extname ')'
+	| IMPORT
+	| IMPORT '(' dspec_ds_import ')'
+	| INZ
+	| INZ '(' dspec_ds_inz ')'
+	| LEN '(' dspec_ds_len ')'
+	| LIKEDS '(' dspec_ds_likeds ')'
+	| NOOPT
+	| OCCURS '(' dspec_ds_occurs ')'
+	| PSDS
+	| PREFIX '(' dspec_ds_prefix ')'
+	| QUALIFIED
+	| STATIC
+	| STATIC '(' dspec_ds_static ')'
+	| TEMPLATE
 
-dspec_ds_len
-	: _INT_
+dspec_ds_altseq
+	: _NONE
 
-dspec_ds_extname
-	: _IDENTIFIER_
-
-dspec_ds_inz
-	: _EXTDFT
-	| _LIKEDS
-
-dspec_ds_infds
+dspec_ds_based
 	: _IDENTIFIER_
 
 dspec_ds_dtaara
@@ -806,12 +816,43 @@ dspec_ds_dtaara
 	| _USRCTL ':' dspec_ds_dtaara
 	| _VARCHAR_ ':' dspec_ds_dtaara
 
-dspec_ds_kwsx
-	: dspec_ds_kws LIKEDS '(' dspec_ds_likeds ')' dspec_ds_kws
-	| dspec_ds_kws LIKEREC '(' dspec_ds_likerec ')' dspec_ds_kws
+dspec_ds_export
+	: _VARCHAR_
+
+dspec_ds_extname
+	: _VARCHAR_
+	| _VARCHAR_ ':' _VARCHAR_
+	| _VARCHAR_ ':' _VARCHAR_ ':' _ALL
+	| _VARCHAR_ ':' _VARCHAR_ ':' _INPUT
+	| _VARCHAR_ ':' _VARCHAR_ ':' _OUTPUT
+	| _VARCHAR_ ':' _VARCHAR_ ':' _KEY
+
+dspec_ds_import
+	: _VARCHAR_
+
+dspec_ds_inz
+	: _EXTDFT
+	| _LIKEDS
+
+dspec_ds_len
+	: _INT_
 
 dspec_ds_likeds
 	: _IDENTIFIER_
+
+dspec_ds_occurs
+	: _INT_
+
+dspec_ds_prefix
+	: _VARCHAR_
+	| _VARCHAR_ ':' _INT_
+
+dspec_ds_static
+	: _ALLTHREAD
+
+dspec_ds_kwsx
+	: dspec_ds_kws LIKEDS '(' dspec_ds_likeds ')' dspec_ds_kws
+	| dspec_ds_kws LIKEREC '(' dspec_ds_likerec ')' dspec_ds_kws
 
 dspec_ds_likerec
 	: _IDENTIFIER_

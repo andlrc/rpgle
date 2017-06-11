@@ -173,7 +173,7 @@ ws		[\t\r\n ]+
 <FSPECNS>"IGNORE"		{ count(); return IGNORE; }
 <FSPECNS>"INCLUDE"		{ count(); return INCLUDE; }
 <FSPECNS>"INDDS"		{ count(); return INDDS; }
-<FSPECNS,DSPECNS>"INFDS"	{ count(); return INFDS; }
+<FSPECNS>"INFDS"		{ count(); return INFDS; }
 <FSPECNS>"INFSR"		{ count(); return INFSR; }
 <FSPECNS>"KEYED"		{ count(); return KEYED; }
 <FSPECNS>"KEYLOC"		{ count(); return KEYLOC; }
@@ -325,7 +325,6 @@ ws		[\t\r\n ]+
 <FSPECNS,DSPECNS>"*OUTPUT"	{ count(); return _OUTPUT; }
 <FSPECNS>"*UPDATE"		{ count(); return _UPDATE; }
 
-
 	/* D-Spec */
 <*>"DCL-C"			{ count(); BEGIN(DSPECNS); return DCL_C; }
 <*>"DCL-DS"			{ count(); BEGIN(DSPECNS); return DCL_DS; }
@@ -335,18 +334,24 @@ ws		[\t\r\n ]+
 <*>"DCL-PR"			{ count(); BEGIN(DSPECNS); return DCL_PR; }
 <DSPECNS>"END-PR"		{ count(); return END_PR; }
 <*>"DCL-S"			{ count(); BEGIN(DSPECNS); return DCL_S; }
-<DSPECNS>"CONST"		{ count(); return CONST; }
-<DSPECNS>"LEN"			{ count(); return LEN; }
-<DSPECNS>"EXT"			{ count(); return EXT; }
-<DSPECNS>"EXTNAME"		{ count(); return EXTNAME; }
-<DSPECNS>"INZ"			{ count(); return INZ; }
-<DSPECNS>"PSDS"			{ count(); return PSDS; }
+<DSPECNS>"ALIGN"		{ count(); return ALIGN; }
+<DSPECNS>"BASED"		{ count(); return BASED; }
 <DSPECNS>"DTAARA"		{ count(); return DTAARA; }
+<DSPECNS>"EXPORT"		{ count(); return EXPORT; }
+<DSPECNS>"EXT"			{ count(); return EXT; }
+<DSPECNS>"IMPORT"		{ count(); return IMPORT; }
+<DSPECNS>"INZ"			{ count(); return INZ; }
+<DSPECNS>"LEN"			{ count(); return LEN; }
 <DSPECNS>"LIKEDS"		{ count(); return LIKEDS; }
 <DSPECNS>"LIKEREC"		{ count(); return LIKEREC; }
-<DSPECNS>"*KEY"			{ count(); return _KEY; }
+<DSPECNS>"NOOPT"		{ count(); return NOOPT; }
+<DSPECNS>"OCCURS"		{ count(); return OCCURS; }
+<DSPECNS>"PSDS"			{ count(); return PSDS; }
+
+<DSPECNS>"*ALLTHREAD"		{ count(); return _ALLTHREAD; }
 <DSPECNS>"*AUTO"		{ count(); return _AUTO; }
 <DSPECNS>"*EXTDFT"		{ count(); return _EXTDFT; }
+<DSPECNS>"*KEY"			{ count(); return _KEY; }
 <DSPECNS>"*LIKEDS"		{ count(); return _LIKEDS; }
 
 <*>{ident}			{ count(); return _IDENTIFIER_; }
